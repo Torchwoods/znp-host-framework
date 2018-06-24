@@ -120,7 +120,7 @@ int32_t rpcTransportOpen(char *_devicePath, uint32_t port)
 	}
 
 	/* open the device */
-	serialPortFd = open(devicePath, O_RDWR | O_NOCTTY);
+	serialPortFd = open(devicePath, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (serialPortFd < 0)
 	{
 		perror(devicePath);
@@ -129,6 +129,17 @@ int32_t rpcTransportOpen(char *_devicePath, uint32_t port)
 		return (-1);
 	}
 
+	tcflush(serialPortFd, TCIOFLUSH);
+
+	bzero(&tio,sizeof(tio));
+	if(tcgetattr(serialPortFd,&tio) !=0 )
+	{
+		dbg_print(PRINT_LEVEL_ERROR,"tcgetatter failed\n");
+		return -1;
+	}
+	
+	ioctl( serialPortFd, TIOCEXCL);
+
 	/* c-iflags
 	 B115200 : set board rate to 115200
 	 CRTSCTS : HW flow control
@@ -136,8 +147,9 @@ int32_t rpcTransportOpen(char *_devicePath, uint32_t port)
 	 CLOCAL  : local connection, no modem contol
 	 CREAD   : enable receiving characters*/
 	tio.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+	
 #ifndef CC26xx
-	tio.c_cflag |= CRTSCTS;
+//	tio.c_cflag |= CRTSCTS;
 #endif //CC26xx
 	/* c-iflags
 	 ICRNL   : maps 0xD (CR) to 0x10 (LR), we do not want this.

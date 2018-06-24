@@ -173,17 +173,17 @@ static int32_t registerAf(void);
 
 typedef struct
 {
-	char *name;
+	char *name;//参数名称
 	uint8_t size;
 	uint8_t isList;
 } cmdAtt_t;
 
 typedef struct
 {
-	char *cmdName;
-	char *cmdDesc;
-	uint8_t attNum;
-	cmdAtt_t atts[20];
+	char *cmdName;//命令名称
+	char *cmdDesc;//命令描述
+	uint8_t attNum;//命令参数个数
+	cmdAtt_t atts[20]; //参数内容
 } cmd_t;
 #define COMMANDS_SIZE  72
 
@@ -195,65 +195,80 @@ cmd_t commands[COMMANDS_SIZE];
 
 // SYS callbacks
 static mtSysCb_t mtSysCb =
-	{ mtSysPingSrspCb, mtSysGetExtAddrSrspCb, mtSysRamReadSrspCb,
-	        mtSysResetIndCb, mtSysVersionSrspCb, mtSysOsalNvReadSrspCb,
-	        mtSysOsalNvLengthSrspCb, mtSysOsalTimerExpiredCb,
-	        mtSysStackTuneSrspCb, mtSysAdcReadSrspCb, mtSysGpioSrspCb,
-	        mtSysRandomSrspCb, mtSysGetTimeSrspCb, mtSysSetTxPowerSrspCb };
+{ 
+	mtSysPingSrspCb, 
+	mtSysGetExtAddrSrspCb, 
+	mtSysRamReadSrspCb,
+	mtSysResetIndCb, 
+	mtSysVersionSrspCb,
+	mtSysOsalNvReadSrspCb,
+	mtSysOsalNvLengthSrspCb,
+	mtSysOsalTimerExpiredCb,
+	mtSysStackTuneSrspCb,
+	mtSysAdcReadSrspCb,
+	mtSysGpioSrspCb,
+	mtSysRandomSrspCb, 
+	mtSysGetTimeSrspCb, 
+	mtSysSetTxPowerSrspCb 
+};
 
 static mtZdoCb_t mtZdoCb =
-	{ mtZdoNwkAddrRspCb,       // MT_ZDO_NWK_ADDR_RSP
-	        mtZdoIeeeAddrRspCb,      // MT_ZDO_IEEE_ADDR_RSP
-	        mtZdoNodeDescRspCb,      // MT_ZDO_NODE_DESC_RSP
-	        mtZdoPowerDescRspCb,     // MT_ZDO_POWER_DESC_RSP
-	        mtZdoSimpleDescRspCb,    // MT_ZDO_SIMPLE_DESC_RSP
-	        mtZdoActiveEpRspCb,      // MT_ZDO_ACTIVE_EP_RSP
-	        mtZdoMatchDescRspCb,     // MT_ZDO_MATCH_DESC_RSP
-	        mtZdoComplexDescRspCb,   // MT_ZDO_COMPLEX_DESC_RSP
-	        mtZdoUserDescRspCb,      // MT_ZDO_USER_DESC_RSP
-	        mtZdoUserDescConfCb,     // MT_ZDO_USER_DESC_CONF
-	        mtZdoServerDiscRspCb,    // MT_ZDO_SERVER_DISC_RSP
-	        mtZdoEndDeviceBindRspCb, // MT_ZDO_END_DEVICE_BIND_RSP
-	        mtZdoBindRspCb,          // MT_ZDO_BIND_RSP
-	        mtZdoUnbindRspCb,        // MT_ZDO_UNBIND_RSP
-	        mtZdoMgmtNwkDiscRspCb,   // MT_ZDO_MGMT_NWK_DISC_RSP
-	        mtZdoMgmtLqiRspCb,       // MT_ZDO_MGMT_LQI_RSP
-	        mtZdoMgmtRtgRspCb,       // MT_ZDO_MGMT_RTG_RSP
-	        mtZdoMgmtBindRspCb,      // MT_ZDO_MGMT_BIND_RSP
-	        mtZdoMgmtLeaveRspCb,     // MT_ZDO_MGMT_LEAVE_RSP
-	        mtZdoMgmtDirectJoinRspCb,     // MT_ZDO_MGMT_DIRECT_JOIN_RSP
-	        mtZdoMgmtPermitJoinRspCb,     // MT_ZDO_MGMT_PERMIT_JOIN_RSP
-	        mtZdoStateChangeIndCb,   // MT_ZDO_STATE_CHANGE_IND
-	        mtZdoEndDeviceAnnceIndCb,   // MT_ZDO_END_DEVICE_ANNCE_IND
-	        mtZdoSrcRtgIndCb,        // MT_ZDO_SRC_RTG_IND
-	        mtZdoBeaconNotifyIndCb,	 //MT_ZDO_BEACON_NOTIFY_IND
-	        mtZdoJoinCnfCb,			 //MT_ZDO_JOIN_CNF
-	        mtZdoNwkDiscoveryCnfCb,	 //MT_ZDO_NWK_DISCOVERY_CNF
-	        NULL,                    // MT_ZDO_CONCENTRATOR_IND_CB
-	        mtZdoLeaveIndCb,         // MT_ZDO_LEAVE_IND
-	        mtZdoStatusErrorRspCb,   //MT_ZDO_STATUS_ERROR_RSP
-	        mtZdoMatchDescRspSentCb,  //MT_ZDO_MATCH_DESC_RSP_SENT
-	        mtZdoMsgCbIncomingCb, mtZdoGetLinkKeyCb };
+{ 
+	mtZdoNwkAddrRspCb,       // MT_ZDO_NWK_ADDR_RSP
+	mtZdoIeeeAddrRspCb,      // MT_ZDO_IEEE_ADDR_RSP
+	mtZdoNodeDescRspCb,      // MT_ZDO_NODE_DESC_RSP
+	mtZdoPowerDescRspCb,     // MT_ZDO_POWER_DESC_RSP
+	mtZdoSimpleDescRspCb,    // MT_ZDO_SIMPLE_DESC_RSP
+	mtZdoActiveEpRspCb,      // MT_ZDO_ACTIVE_EP_RSP
+	mtZdoMatchDescRspCb,     // MT_ZDO_MATCH_DESC_RSP
+	mtZdoComplexDescRspCb,   // MT_ZDO_COMPLEX_DESC_RSP
+	mtZdoUserDescRspCb,      // MT_ZDO_USER_DESC_RSP
+	mtZdoUserDescConfCb,     // MT_ZDO_USER_DESC_CONF
+	mtZdoServerDiscRspCb,    // MT_ZDO_SERVER_DISC_RSP
+	mtZdoEndDeviceBindRspCb, // MT_ZDO_END_DEVICE_BIND_RSP
+	mtZdoBindRspCb,          // MT_ZDO_BIND_RSP
+	mtZdoUnbindRspCb,        // MT_ZDO_UNBIND_RSP
+	mtZdoMgmtNwkDiscRspCb,   // MT_ZDO_MGMT_NWK_DISC_RSP
+	mtZdoMgmtLqiRspCb,       // MT_ZDO_MGMT_LQI_RSP
+	mtZdoMgmtRtgRspCb,       // MT_ZDO_MGMT_RTG_RSP
+	mtZdoMgmtBindRspCb,      // MT_ZDO_MGMT_BIND_RSP
+	mtZdoMgmtLeaveRspCb,     // MT_ZDO_MGMT_LEAVE_RSP
+	mtZdoMgmtDirectJoinRspCb,     // MT_ZDO_MGMT_DIRECT_JOIN_RSP
+	mtZdoMgmtPermitJoinRspCb,     // MT_ZDO_MGMT_PERMIT_JOIN_RSP
+	mtZdoStateChangeIndCb,   // MT_ZDO_STATE_CHANGE_IND
+	mtZdoEndDeviceAnnceIndCb,   // MT_ZDO_END_DEVICE_ANNCE_IND
+	mtZdoSrcRtgIndCb,        // MT_ZDO_SRC_RTG_IND
+	mtZdoBeaconNotifyIndCb,	 //MT_ZDO_BEACON_NOTIFY_IND
+	mtZdoJoinCnfCb,			 //MT_ZDO_JOIN_CNF
+	mtZdoNwkDiscoveryCnfCb,	 //MT_ZDO_NWK_DISCOVERY_CNF
+	NULL,                    // MT_ZDO_CONCENTRATOR_IND_CB
+	mtZdoLeaveIndCb,         // MT_ZDO_LEAVE_IND
+	mtZdoStatusErrorRspCb,   //MT_ZDO_STATUS_ERROR_RSP
+	mtZdoMatchDescRspSentCb,  //MT_ZDO_MATCH_DESC_RSP_SENT
+	mtZdoMsgCbIncomingCb, mtZdoGetLinkKeyCb 
+};
 
 static mtAfCb_t mtAfCb =
-	{ mtAfDataConfirmCb,				//MT_AF_DATA_CONFIRM
-	        mtAfIncomingMsgCb,				//MT_AF_INCOMING_MSG
-	        mtAfIncomingMsgExt,				//MT_AF_INCOMING_MSG_EXT
-	        mtAfDataRetrieveSrspCb,			//MT_AF_DATA_RETRIEVE
-	        mtAfReflectErrorCb,			    //MT_AF_REFLECT_ERROR
-	    };
+{ 
+	mtAfDataConfirmCb,				//MT_AF_DATA_CONFIRM
+	mtAfIncomingMsgCb,				//MT_AF_INCOMING_MSG
+	mtAfIncomingMsgExt,				//MT_AF_INCOMING_MSG_EXT
+	mtAfDataRetrieveSrspCb,			//MT_AF_DATA_RETRIEVE
+	mtAfReflectErrorCb,			    //MT_AF_REFLECT_ERROR
+};
 
 // SAPI callbacks
 static mtSapiCb_t mtSapiCb =
-	{ mtSapiReadConfigurationSrspCb,				//MT_SAPI_READ_CONFIGURATION
-	        mtSapiGetDeviceInfoSrspCb,				//MT_SAPI_GET_DEVICE_INFO
-	        mtSapiFindDeviceCnfCb,				//MT_SAPI_FIND_DEVICE_CNF
-	        mtSapiSendDataCnfCb,				//MT_SAPI_SEND_DATA_CNF
-	        mtSapiReceiveDataIndCb,				//MT_SAPI_RECEIVE_DATA_IND
-	        mtSapiAllowBindCnfCb,				//MT_SAPI_ALLOW_BIND_CNF
-	        mtSapiBindCnfCb,				//MT_SAPI_BIND_CNF
-	        mtSapiStartCnfCb,				//MT_SAPI_START_CNF
-	    };
+{ 
+	mtSapiReadConfigurationSrspCb,				//MT_SAPI_READ_CONFIGURATION
+	mtSapiGetDeviceInfoSrspCb,				//MT_SAPI_GET_DEVICE_INFO
+	mtSapiFindDeviceCnfCb,				//MT_SAPI_FIND_DEVICE_CNF
+	mtSapiSendDataCnfCb,				//MT_SAPI_SEND_DATA_CNF
+	mtSapiReceiveDataIndCb,				//MT_SAPI_RECEIVE_DATA_IND
+	mtSapiAllowBindCnfCb,				//MT_SAPI_ALLOW_BIND_CNF
+	mtSapiBindCnfCb,				//MT_SAPI_BIND_CNF
+	mtSapiStartCnfCb,				//MT_SAPI_START_CNF
+};
 
 static void InitCmds(void)
 {
@@ -2641,6 +2656,7 @@ static int32_t startNetwork(void)
 			devType = DEVICETYPE_ENDDEVICE;
 			break;
 		}
+		
 		status = setNVDevType(devType);
 
 		if (status != MT_RPC_SUCCESS)
@@ -2670,6 +2686,7 @@ static int32_t startNetwork(void)
 
 	}
 
+	//注册一个节点
 	registerAf();
 	consolePrint("EndPoint: 1\n");
 
@@ -2743,19 +2760,25 @@ uint32_t appInit(void)
 	uint32_t msgCnt = 0;
 
 	//Flush all messages from the que
+	//清空消息队列	
 	while (status != -1)
 	{
+		
 		status = rpcWaitMqClientMsg(10);
+		//如果还有消息存在，则一直读取消息，直到没有消息位置
 		if (status != -1)
 		{
 			msgCnt++;
 		}
 	}
 
+
 	dbg_print(PRINT_LEVEL_INFO, "flushed %d message from msg queue\n", msgCnt);
 
 	//Register Callbacks MT system callbacks
+	//注册MT_SYS层的CallBack处理函数
 	sysRegisterCallbacks(mtSysCb);
+	
 	zdoRegisterCallbacks(mtZdoCb);
 	afRegisterCallbacks(mtAfCb);
 	sapiRegisterCallbacks(mtSapiCb);
@@ -3136,6 +3159,7 @@ static void inputCmd(uint16_t index)
 	free(input);
 
 }
+//比较输入的命令和commands中的命令
 static uint8_t getMatched(char* cmd)
 {
 	uint8_t cmdLength = strlen(cmd);
@@ -3148,21 +3172,29 @@ static uint8_t getMatched(char* cmd)
 	for (Idx = 0; Idx < COMMANDS_SIZE; Idx++)
 	{
 		tempLength = strlen(commands[Idx].cmdName);
+		//比较命令名字长度
 		if (tempLength >= cmdLength)
 		{
 			strcpy(tempcmd, commands[Idx].cmdName);
 			tempcmd[cmdLength] = '\0';
+			//比较名称，如果一样
 			if (strcmp(cmd, tempcmd) == 0)
 			{
+				//名称长度一样
 				if (tempLength == cmdLength)
 				{
+					//将命令所在的idx存放到matchedTemp[0]中
 					matchedTemp[0] = Idx;
+					//匹配到一个
 					cmdMatches = 1;
+					
 					matchedLength = 0;
+					//直接跳到最后一个
 					Idx = COMMANDS_SIZE;
 				}
 				else
 				{
+					//名称长度不一样，则进行查找
 					matchedTemp[cmdMatches] = Idx;
 					cmdMatches++;
 				}
@@ -3170,6 +3202,7 @@ static uint8_t getMatched(char* cmd)
 		}
 	}
 	uint8_t index = strlen(cmd);
+	
 	if (cmdMatches > 1 && (matchedLength == cmdMatches || matchedLength == 0))
 	{
 
@@ -3212,12 +3245,13 @@ static uint8_t clGetCmd(void)
 
 	while (cmdComplete == 0)
 	{
+		//获取一个字符
 		ch = consoleGetCh();
 		switch (ch)
 		{
-		case '\t':
-			consoleClearLn()
-			;
+		case '\t'://制表符
+			consoleClearLn();
+			
 			consolePrint("\r%s", cmdStr);
 
 			getMatched(cmdStr);
@@ -3256,13 +3290,12 @@ static uint8_t clGetCmd(void)
 				}
 			}
 			cmdStrIdx = strlen(cmdStr);
-			consoleClearLn()
-			;
+			consoleClearLn();
 			consolePrint("\r%s", cmdStr);
 			matchedLength = 0;
 			consolePrint("%s", KNRM);
 			break;
-		case '\n':
+		case '\n'://换行符号
 			//enter was press
 			getMatched(cmdStr);
 			if ((histIdx == 0 && isHistRollOver == 0)
@@ -3445,6 +3478,7 @@ void appProcess(void *argument)
 	InitCmds();
 
 	//Flush all messages from the que
+	//清空队列
 	do
 	{
 		status = rpcWaitMqClientMsg(50);

@@ -92,6 +92,7 @@ static sem_t srspSem;
 static uint8_t expectedSrspCmdId;
 
 // RPC message queue for passing RPC frame from RPC process to APP process
+//RPC消息队列
 static llq_t rpcLlq;
 
 /*********************************************************************
@@ -212,29 +213,43 @@ int32_t rpcWaitMqClientMsg(uint32_t timeout)
 	int32_t rpcLen, timeLeft = 0, mBefTime, mAftTime;
 	struct timespec to;
 	struct timeval befTime, aftTime;
-	// calculate timeout
-	to.tv_sec = time(0) + (timeout / 1000);
-	to.tv_nsec = (long) ((long) timeout % 1000) * 1000000L;
+	
+	// calculate timeout 计算超时时间
+	to.tv_sec = time(0) + (timeout / 1000); //秒
+	to.tv_nsec = (long) ((long) timeout % 1000) * 1000000L; //微秒
 
 	dbg_print(PRINT_LEVEL_INFO, "rpcWaitMqClientMsg: timeout=%d\n", timeout);
 	dbg_print(PRINT_LEVEL_INFO,
 	        "rpcWaitMqClientMsg: waiting on queue %d:%d:%d\n", timeout,
 	        to.tv_sec, to.tv_nsec);
 
+	//获得当前精准时间(1970年1月1日到现在)
 	gettimeofday(&befTime, NULL);
+
+	//到队列中接收数据
 	rpcLen = llq_timedreceive(&rpcLlq, (char *) rpcFrame, RPC_MAX_LEN + 1, &to);
+
 	gettimeofday(&aftTime, NULL);
+	//有读取到数据
 	if (rpcLen != -1)
 	{
+		//获取运行llq_timedreceive前的时间
 		mBefTime = befTime.tv_sec * 1000;
 		mBefTime += befTime.tv_usec / 1000;
+
+		//获取运行llq_timedreceive后的时间
 		mAftTime = aftTime.tv_sec * 1000;
 		mAftTime += aftTime.tv_usec / 1000;
+		//得到llq_timedreceive运行的时间
 		timeLeft = mAftTime - mBefTime;
+
+		//剩余的空闲时间
 		timeLeft = timeout - timeLeft;
+		
 		dbg_print(PRINT_LEVEL_INFO, "rpcWaitMqClientMsg: processing MT[%d]\n",
 		        rpcLen);
 		// process incoming message
+		//处理MT的命令
 		mtProcess(rpcFrame, rpcLen);
 	}
 	else
@@ -280,8 +295,9 @@ int32_t rpcProcess(void)
 	uint8_t fcs;
 
 #ifndef HAL_UART_IP //No SOF for IP	//read first byte and check it is a SOF
+	//读取一个字节
 	bytesRead = rpcTransportRead(&sofByte, 1);
-
+	//判断该字节是否是协议头
 	if ((sofByte == MT_RPC_SOF) && (bytesRead == 1))
 #endif
 	{
@@ -289,6 +305,8 @@ int32_t rpcProcess(void)
 		retryAttempts = 0;
 
 		// read length byte
+
+		//读取协议长度位
 		bytesRead = rpcTransportRead(&rpcLen, 1);
 
 		if (bytesRead == 1)
@@ -300,20 +318,23 @@ int32_t rpcProcess(void)
 			rpcLen += RPC_CMD0_FIELD_LEN + RPC_CMD1_FIELD_LEN;
 #else
 			//allocating RPC payload (+ cmd0, cmd1 and fcs)
-			rpcLen +=
-			RPC_CMD0_FIELD_LEN + RPC_CMD1_FIELD_LEN + RPC_UART_FCS_LEN;
+			//得到数据的整个长度
+			rpcLen += RPC_CMD0_FIELD_LEN + RPC_CMD1_FIELD_LEN + RPC_UART_FCS_LEN;
 #endif
 
 			//non blocking read, so we need to wait for the rpc to be read
 			rpcBuffIdx = 1;
 			rpcTempLen = rpcLen;
+			//读取一包完整的数据
 			while (rpcTempLen > 0)
 			{
 				// read RPC frame
+				//读取协议中的剩余数据，非阻塞读取
 				bytesRead = rpcTransportRead(&(rpcBuff[rpcBuffIdx]),
 				        rpcTempLen);
 
 				// check for error
+				//如果读取的数据大于协议的长度
 				if (bytesRead > rpcTempLen)
 				{
 					//there was an error
@@ -322,6 +343,7 @@ int32_t rpcProcess(void)
 					        rpcTempLen, strerror(errno));
 
 					// check whether retry limits has been reached
+					//重复5次读取，超过的话返回
 					if (retryAttempts++ < 5)
 					{
 						// sleep for 10ms
@@ -341,6 +363,7 @@ int32_t rpcProcess(void)
 				}
 
 				// update counters
+				//计算还有多少个字节需要读取
 				if (rpcTempLen > bytesRead)
 				{
 					rpcTempLen -= bytesRead;
@@ -349,6 +372,7 @@ int32_t rpcProcess(void)
 				{
 					rpcTempLen = 0;
 				}
+				//设置缓冲区idx位置
 				rpcBuffIdx += bytesRead;
 			}
 
@@ -356,7 +380,9 @@ int32_t rpcProcess(void)
 			printRpcMsg("SOC IN  <--", MT_RPC_SOF, len, &rpcBuff[1]);
 
 			//Verify FCS of incoming MT frames
+			//数据进行FCS校验
 			fcs = calcFcs(&rpcBuff[0], (len + 3));
+			//校验失败
 			if (rpcBuff[len + 3] != fcs)
 			{
 				dbg_print(PRINT_LEVEL_WARNING, "rpcProcess: fcs error %x:%x\n",
@@ -364,6 +390,7 @@ int32_t rpcProcess(void)
 				return -1;
 			}
 
+			//如果CMD0的高3位是SRSP，即异步的应答 A synchronous response
 			if ((rpcBuff[1] & MT_RPC_CMD_TYPE_MASK) == MT_RPC_CMD_SRSP)
 			{
 				// SRSP command ID deteced
@@ -381,6 +408,7 @@ int32_t rpcProcess(void)
 					        rpcLen);
 
 					// send message to queue
+					//将消息加入到队列中
 					llq_add(&rpcLlq, (char*) &rpcBuff[1], rpcLen, 1);
 				}
 				else

@@ -134,11 +134,13 @@ int llq_timedreceive(llq_t *hndl, char *buffer, int maxLength,
 	if (timeout != NULL)
 	{
 		//wait for a message or timeout
+		//sem_timedwait获取获取信号量，如果此时信号量被使用，则等待timeout时间，如果在此时间内获取成功则返回0
 		sepmRnt = sem_timedwait(&(hndl->llqCountSem), timeout);
 	}
 	else
 	{
 		//wait for a message
+		//获取信号量
 		sepmRnt = sem_wait(&(hndl->llqCountSem));
 	}
 
@@ -149,17 +151,18 @@ int llq_timedreceive(llq_t *hndl, char *buffer, int maxLength,
 			//wait to get access to the que
 			sem_wait(&(hndl->llqAccessSem));
 
-			hndl->temp = hndl->head->ptr;
-			memcpy(buffer, hndl->head->data, hndl->head->length);
-			rLength = (int) hndl->head->length;
+			hndl->temp = hndl->head->ptr;//将head的下一个节点存放到零时缓冲区
+			memcpy(buffer, hndl->head->data, hndl->head->length);//将Head节点的数据取出
+			rLength = (int) hndl->head->length; //获取Head节点数据的长度
 
 			//did head point to another element
+			//如果有多条数据即temp不为NULL
 			if (hndl->temp != NULL)
 			{
 				//free current head element and point head to next
-				free(hndl->head->data);
-				free(hndl->head);
-				hndl->head = hndl->temp;
+				free(hndl->head->data); //释放data空间
+				free(hndl->head);		//释放head空间
+				hndl->head = hndl->temp;//将temp数据指向Head指针
 			}
 			else
 			{

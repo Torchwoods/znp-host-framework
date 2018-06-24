@@ -1,0 +1,10 @@
+.svn.bk
+*.db
+tags
+*.o
+airkiss
+branches
+out
+log
+ERROR__out
+*.bin

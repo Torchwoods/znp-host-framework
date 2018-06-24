@@ -80,6 +80,7 @@ uint8_t srspRpcLen;
  *
  * @return  length of current Rx Buffer
  *************************************************************************************************/
+//处理MT的消息
 void mtProcess(uint8_t *rpcBuff, uint8_t rpcLen)
 {
     //Read CMD0

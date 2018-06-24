@@ -44,6 +44,7 @@
 
 #include "dbgPrint.h"
 
+//处理串口的ZNP数据
 void *rpcTask(void *argument)
 {
 	while (1)
@@ -88,7 +89,7 @@ int main(int argc, char* argv[])
 		exit(-1);
 	}
 
-	//init the rpc que client
+	//init the rpc que client 初始化队列
 	rpcInitMq();
 
 	//init the application thread to register the callbacks
@@ -96,13 +97,13 @@ int main(int argc, char* argv[])
 
 	//Start the Rx thread
 	dbg_print(PRINT_LEVEL_INFO, "creating RPC thread\n");
+	
 	pthread_create(&rpcThread, NULL, rpcTask, (void *) &serialPortFd);
 
 	//Start the example thread
 	dbg_print(PRINT_LEVEL_INFO, "creating example thread\n");
 	pthread_create(&appThread, NULL, appTask, NULL);
 
-	while (1)
-		;
+	while (1);
 
 }

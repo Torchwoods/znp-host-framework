@@ -1582,6 +1582,7 @@ static void processNwkAddrRsp(uint8_t *rpcBuff, uint8_t rpcLen)
 			printf("MT_RPC_ERR_LENGTH\n");
 
 		}
+		
 		//printf("rpcLen = %d\n", rpcLen);
 
 		rsp.Status = rpcBuff[msgIdx++];
